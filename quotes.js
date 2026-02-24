@@ -1368,4 +1368,17 @@ const fl718Quotes = [
     layout: "center"
   },
 
+  // ── SÉAMUS DOLAN (cont.) ──────────────────────────────────────────────────
+  {
+    id: 112,
+    text: "Sometimes six or seven whiskeys leave you feeling loose around the edges. More than a few of those whiskeys had sand in them. Sure, I was in Egypt, but nowhere near the desert. I was hanging off a jagged chair in a haggard bar in the center of Alexandria. What the fuck am I drinking whiskey and sand on a Tuesday at 11:30 in the morning for?",
+    attribution: "— Séamus Dolan",
+    source: "Tears of Egypt Series",
+    mood: "dark-raw",
+    length: "standard",
+    animation: "darkroom-develop",
+    font: "fl718-font-literary",
+    layout: "left"
+  },
+
 ];
