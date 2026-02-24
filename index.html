@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flaneur 718 — Quotes — Prototype</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=IM+Fell+English:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+
+  <!-- GSAP — must load before all custom JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <style>
+    /* ================================================================
+       FL718 QUOTES PAGE — UNIFIED PROTOTYPE
+       All 12 animations + Phase 1 engine
+    ================================================================ */
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.fl718-quotes-page {
+      overflow: hidden;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background-color: #171612;
+      transition: background-color 0.7s ease;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Mood backgrounds + per-mood text color ──────────────────── */
+
+    body.fl718-mood-dark-raw {
+      background-color: #171612;
+      --fl718-text: #f5ede0;
+      --fl718-rule: rgba(245, 237, 224, 0.16);
+    }
+    body.fl718-mood-tender-literary {
+      background-color: #161b22;
+      --fl718-text: #eef2f8;
+      --fl718-rule: rgba(238, 242, 248, 0.14);
+    }
+    body.fl718-mood-defiant-political {
+      background-color: #1c1c1c;
+      --fl718-text: #f0ece4;
+      --fl718-rule: rgba(240, 236, 228, 0.15);
+    }
+    body.fl718-mood-contemplative-ancient {
+      background-color: #1a1510;
+      --fl718-text: #f7edd8;
+      --fl718-rule: rgba(247, 237, 216, 0.14);
+    }
+    body.fl718-mood-wild-electric {
+      background-color: #0f1520;
+      --fl718-text: #e8eef8;
+      --fl718-rule: rgba(232, 238, 248, 0.13);
+    }
+
+    /* ── Root stage ──────────────────────────────────────────────── */
+
+    #fl718-quotes-root {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem);
+      position: relative;
+    }
+
+    /* ── Quote block ─────────────────────────────────────────────── */
+
+    #fl718-quote-block {
+      width: 100%;
+      opacity: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── Layout classes (left | center | display) ────────────────── */
+
+    #fl718-quote-block.fl718-layout-left   { text-align: left; }
+    #fl718-quote-block.fl718-layout-center { text-align: center; max-width: 65ch; }
+    #fl718-quote-block.fl718-layout-display { text-align: center; }
+
+    .fl718-layout-left .fl718-rule       { margin-left: 0; margin-right: auto; }
+    .fl718-layout-left .fl718-attribution { text-align: left; }
+    .fl718-layout-display .fl718-rule    { width: 30%; }
+
+    #fl718-quote-block.fl718-layout-display .fl718-quote-text {
+      font-size: clamp(3rem, 7.5vw, 6.5rem);
+      line-height: 1.08;
+    }
+
+    /* ── Ornamental rules ────────────────────────────────────────── */
+
+    .fl718-rule {
+      display: block;
+      width: 18%;
+      height: 1px;
+      background-color: var(--fl718-rule, rgba(245, 240, 232, 0.15));
+      margin: 0 auto;
+      border: none;
+      transition: background-color 0.7s ease;
+    }
+
+    .fl718-rule--top    { margin-bottom: clamp(1.5rem, 3.5vw, 2.75rem); }
+    .fl718-rule--bottom { margin-top:    clamp(1.5rem, 3.5vw, 2.75rem); }
+
+    /* ── Quote text ──────────────────────────────────────────────── */
+
+    .fl718-quote-text {
+      display: block;
+      font-style: normal;
+      color: var(--fl718-text, #f5f0e8);
+      white-space: pre-line;
+      transition: color 0.7s ease;
+    }
+
+    #fl718-quote-block.fl718-length-standard .fl718-quote-text,
+    #fl718-quote-block:not([class*="fl718-length"]) .fl718-quote-text {
+      font-size: clamp(1.8rem, 4vw, 3.5rem);
+      line-height: 1.45;
+    }
+
+    #fl718-quote-block.fl718-length-long .fl718-quote-text {
+      font-size: clamp(1.05rem, 1.9vw, 1.55rem);
+      line-height: 1.8;
+    }
+
+    /* Dense: poems with many line breaks — tighter to fit viewport */
+    #fl718-quote-block.fl718-length-long.fl718-dense-lines .fl718-quote-text {
+      font-size: clamp(1.05rem, 2vw, 1.55rem);
+      line-height: 1.5;
+    }
+
+    #fl718-quote-block.fl718-length-standard.fl718-dense-lines .fl718-quote-text {
+      font-size: clamp(1.35rem, 3vw, 2.5rem);
+      line-height: 1.3;
+    }
+
+    #fl718-quote-block.fl718-length-short .fl718-quote-text {
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      line-height: 1.15;
+    }
+
+    /* ── Attribution ─────────────────────────────────────────────── */
+
+    .fl718-attribution {
+      margin-top: clamp(1.1rem, 2.5vw, 1.8rem);
+    }
+
+    .fl718-attribution-name {
+      display: block;
+      font-style: normal;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: clamp(0.62rem, 0.9vw, 0.78rem);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #a89e94;
+    }
+
+    .fl718-attribution-source {
+      display: none;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: clamp(0.54rem, 0.78vw, 0.68rem);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #a89e94;
+      opacity: 0.6;
+      margin-top: 0.3rem;
+    }
+
+    .fl718-attribution-source.is-visible { display: block; }
+
+    /* ── Font classes ────────────────────────────────────────────── */
+
+    .fl718-font-literary   .fl718-quote-text { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 400; }
+    .fl718-font-brutal     .fl718-quote-text { font-family: 'Bebas Neue', Impact, sans-serif; font-style: normal; font-weight: 400; letter-spacing: 0.04em; }
+    .fl718-font-archival   .fl718-quote-text { font-family: 'IM Fell English', 'Times New Roman', serif; font-style: normal; font-weight: 400; }
+    .fl718-font-system     .fl718-quote-text { font-family: 'DM Mono', 'Courier New', monospace; font-weight: 300; letter-spacing: -0.015em; }
+    .fl718-font-expressive .fl718-quote-text { font-family: 'Abril Fatface', Georgia, serif; font-style: normal; font-weight: 400; }
+
+    /* ── Mockup label ────────────────────────────────────────────── */
+
+    #fl718-mockup-label {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.75rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.5rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #f5f0e8;
+      opacity: 0.1;
+      pointer-events: none;
+      user-select: none;
+      z-index: 100;
+    }
+
+    /* ── Scroll hint ─────────────────────────────────────────────── */
+
+    #fl718-scroll-hint {
+      position: fixed;
+      bottom: 2.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.48rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #f5f0e8;
+      opacity: 0;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      transition: opacity 0.8s ease;
+    }
+
+    #fl718-scroll-hint.is-visible { opacity: 0.16; }
+    #fl718-scroll-hint.is-hidden  { opacity: 0; }
+
+    /* ── Prevent Uncode bleed (production safety) ────────────────── */
+
+    body.fl718-quotes-page .post-wrapper,
+    body.fl718-quotes-page .uncont,
+    body.fl718-quotes-page #wrapper,
+    body.fl718-quotes-page .wrapper {
+      overflow: visible !important;
+      max-height: none !important;
+      height: auto !important;
+    }
+
+    /* ================================================================
+       ANIMATION-SPECIFIC CSS
+    ================================================================ */
+
+    /* ── Letterpress ─────────────────────────────────────────────── */
+
+    .fl718-lp-word {
+      display: inline-block;
+      transform-origin: bottom center;
+    }
+
+    /* ── Ikea Assembly ───────────────────────────────────────────── */
+
+    .fl718-ik-word {
+      display: inline-block;
+    }
+
+    /* ── Card Shuffle ────────────────────────────────────────────── */
+
+    .fl718-cs-word {
+      display: inline-block;
+    }
+
+    /* Perspective for 3D word flips (card-shuffle + ikea) */
+    .fl718-quote-text {
+      perspective: 900px;
+      perspective-origin: center center;
+    }
+
+    /* ── Marquee Bulb ────────────────────────────────────────────── */
+
+    .fl718-mb-char {
+      display: inline;
+      opacity: 0.06;
+      color: inherit;
+      text-shadow: none;
+    }
+    .fl718-mb-char.space { white-space: pre; }
+
+    @keyframes fl718BulbFlicker {
+      0%   { opacity: 0.06; text-shadow: none; }
+      20%  { opacity: 0.75; text-shadow: 0 0 6px rgba(255, 208, 80, 0.6); }
+      40%  { opacity: 0.12; text-shadow: none; }
+      70%  { opacity: 0.90; text-shadow: 0 0 10px rgba(255, 208, 80, 0.8); }
+      100% { opacity: 1;    text-shadow: 0 0 4px rgba(255, 208, 80, 0.9), 0 0 12px rgba(255, 190, 40, 0.6), 0 0 28px rgba(255, 160, 20, 0.3); }
+    }
+
+    .fl718-mb-char.flickering { animation: fl718BulbFlicker 0.11s ease-in-out forwards; }
+    .fl718-mb-char.lit { opacity: 1; color: #ffd070; text-shadow: 0 0 4px rgba(255, 208, 80, 0.9), 0 0 12px rgba(255, 190, 40, 0.6), 0 0 28px rgba(255, 160, 20, 0.3); }
+    .fl718-mb-char.surging { opacity: 1; color: #fff5c8; text-shadow: 0 0 8px rgba(255, 245, 200, 1.0), 0 0 22px rgba(255, 220, 80, 0.9), 0 0 55px rgba(255, 200, 50, 0.7); }
+    .fl718-mb-char.dead { opacity: 0.02; color: inherit; text-shadow: none; transition: opacity 0.07s ease-in, text-shadow 0.07s, color 0.07s; }
+
+    /* ── Data Dissolve ───────────────────────────────────────────── */
+
+    .fl718-dd-char {
+      display: inline;
+    }
+    .fl718-dd-char.space { white-space: pre; }
+
+    /* ── String Stitch ───────────────────────────────────────────── */
+
+    .fl718-ss-char {
+      display: inline-block;
+      will-change: transform, opacity;
+    }
+    .fl718-ss-space {
+      white-space: pre;
+    }
+
+    #fl718-thread-svg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh; height: 100dvh;
+      pointer-events: none;
+      z-index: 20;
+      overflow: visible;
+    }
+
+    .fl718-thread {
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    /* ── Pond Ripple ─────────────────────────────────────────────── */
+
+    .fl718-pr-word {
+      display: inline;
+      opacity: 0;
+    }
+
+    #fl718-stone {
+      position: fixed;
+      top: 0; left: 0;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 28%, #d8c8b0, #7a6850);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.75), inset 0 -1px 3px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+      z-index: 60;
+      opacity: 0;
+      transform-origin: center center;
+    }
+
+    #fl718-ripple-svg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100dvh;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 10;
+    }
+
+    .fl718-pr-particle {
+      position: fixed;
+      top: 0; left: 0;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 61;
+      opacity: 0;
+    }
+
+    /* ── Paint Drip ──────────────────────────────────────────────── */
+
+    .fl718-pd-word {
+      display: inline;
+      opacity: 0;
+    }
+
+    .fl718-pd-drip {
+      position: fixed;
+      width: 12px;
+      height: 42px;
+      background: linear-gradient(
+        to bottom,
+        transparent                0%,
+        rgba(245, 237, 224, 0.18) 18%,
+        rgba(245, 237, 224, 0.82) 55%,
+        rgba(245, 237, 224, 0.96) 100%
+      );
+      border-radius: 50% 50% 52% 52% / 25% 25% 75% 75%;
+      transform-origin: center bottom;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    /* ── Navigation Map ──────────────────────────────────────────── */
+
+    #fl718-nav-map {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh; height: 100dvh;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    .fl718-nm-line {
+      display: block;
+      opacity: 0;
+    }
+
+    /* ── Etch-A-Sketch ───────────────────────────────────────────── */
+
+    #fl718-etch-frame {
+      position: fixed;
+      inset: 9vh 7vw;
+      background: #c91a1a;
+      background-image: radial-gradient(ellipse at 50% 0%, #e02222 0%, #b81414 60%, #9a0f0f 100%);
+      border-radius: 16px;
+      box-shadow:
+        inset 0 3px 6px rgba(255, 90, 90, 0.25),
+        inset 0 -8px 16px rgba(0, 0, 0, 0.45),
+        0 16px 60px rgba(0, 0, 0, 0.75),
+        0 4px 18px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    #fl718-etch-frame::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 4%; right: 4%; height: 3%;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 0 0 16px 16px;
+    }
+
+    #fl718-etch-screen {
+      position: absolute;
+      top: 9%; left: 6%; right: 6%; bottom: 21%;
+      background: #b4b8b0;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 2px rgba(0, 0, 0, 0.55),
+        inset 0 3px 10px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 4px rgba(80, 64, 48, 0.22),
+        inset 0 0 0 7px rgba(60, 46, 30, 0.12);
+    }
+
+    #fl718-etch-canvas {
+      display: block; width: 100%; height: 100%;
+    }
+
+    .fl718-etch-knob {
+      position: absolute;
+      bottom: 5%; width: 10.5%; aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 38% 30%, #f0f0e8 0%, #ccccC4 32%, #9c9c94 64%, #787872 100%),
+        repeating-conic-gradient(
+          from 0deg,
+          rgba(0, 0, 0, 0.20) 0deg 5deg,
+          transparent 5deg 10deg
+        );
+      background-blend-mode: multiply;
+      box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.70),
+        0 2px 5px  rgba(0, 0, 0, 0.40),
+        inset 0 2px 5px rgba(255, 255, 255, 0.65),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.32);
+    }
+
+    .fl718-etch-knob::before {
+      content: '';
+      position: absolute;
+      top: 12%; left: 50%;
+      width: 13%; aspect-ratio: 1;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #b0b0a8, #484844);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    }
+
+    .fl718-etch-knob::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 20%; aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 40% 35%, #d8d8d0, #848480);
+      border-radius: 50%;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
+    }
+
+    #fl718-knob-left  { left: 6.5%; }
+    #fl718-knob-right { right: 6.5%; }
+
+    #fl718-etch-brand {
+      position: absolute;
+      bottom: 7%; left: 50%; transform: translateX(-50%);
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(0.38rem, 0.7vw, 0.56rem);
+      letter-spacing: 0.28em; text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.22);
+      white-space: nowrap; pointer-events: none; user-select: none;
+    }
+  </style>
+</head>
+
+<body class="fl718-quotes-page fl718-mood-dark-raw">
+
+  <!-- SVG filter defs — darkroom-develop + smoke-dissolve -->
+  <svg id="fl718-svg-filters" style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
+    <defs>
+      <filter id="fl718-darkroom-filter" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="fl718-smoke-filter" x="-30%" y="-30%" width="160%" height="160%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="4" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Navigation map SVG — populated and cleared per transition -->
+  <svg id="fl718-nav-map" aria-hidden="true"></svg>
+
+  <!-- String-stitch thread overlay -->
+  <svg id="fl718-thread-svg" aria-hidden="true"></svg>
+
+  <!-- Pond-ripple elements -->
+  <div id="fl718-stone" aria-hidden="true"></div>
+  <svg id="fl718-ripple-svg" aria-hidden="true"></svg>
+
+  <!-- Quote stage -->
+  <div id="fl718-quotes-root">
+    <div id="fl718-quote-block">
+      <span class="fl718-rule fl718-rule--top" role="presentation"></span>
+      <blockquote class="fl718-quote-text"></blockquote>
+      <footer class="fl718-attribution">
+        <cite class="fl718-attribution-name"></cite>
+        <span class="fl718-attribution-source"></span>
+      </footer>
+      <span class="fl718-rule fl718-rule--bottom" role="presentation"></span>
+    </div>
+  </div>
+
+  <div id="fl718-mockup-label" aria-hidden="true">Mockup</div>
+  <div id="fl718-scroll-hint" aria-hidden="true">Scroll or swipe</div>
+
+  <!-- Quote data -->
+  <script src="quotes.js"></script>
+
+  <script>
+    /* ================================================================
+       FL718 QUOTES — UNIFIED ENGINE
+       All 12 animations dispatched from a single router.
+       Phase 1 input handling + deck shuffle + render logic preserved.
+    ================================================================ */
+
+    (function () {
+      'use strict';
+
+      // ── DOM refs ──────────────────────────────────────────────────
+
+      var body      = document.body;
+      var block     = document.getElementById('fl718-quote-block');
+      var quoteEl   = block.querySelector('.fl718-quote-text');
+      var nameEl    = block.querySelector('.fl718-attribution-name');
+      var sourceEl  = block.querySelector('.fl718-attribution-source');
+      var footerEl  = block.querySelector('.fl718-attribution');
+      var ruleTopEl = block.querySelector('.fl718-rule--top');
+      var ruleBotEl = block.querySelector('.fl718-rule--bottom');
+      var hintEl    = document.getElementById('fl718-scroll-hint');
+      var navMapSvg = document.getElementById('fl718-nav-map');
+      var threadSvg = document.getElementById('fl718-thread-svg');
+      var stoneEl   = document.getElementById('fl718-stone');
+      var rippleSvg = document.getElementById('fl718-ripple-svg');
+
+      // ── Global state ──────────────────────────────────────────────
+
+      var isTransitioning  = false;
+      var hasInteracted    = false;
+      var currentIndex     = null;
+      var currentQuote     = null;
+      var deck             = [];
+
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ── SVG filter refs ───────────────────────────────────────────
+
+      var dispMapSmoke    = document.querySelector('#fl718-smoke-filter feDisplacementMap');
+      var turbulenceSmoke = document.querySelector('#fl718-smoke-filter feTurbulence');
+      var dispMapDarkroom = document.querySelector('#fl718-darkroom-filter feDisplacementMap');
+
+      // ── Animation module state ────────────────────────────────────
+
+      // Smoke / darkroom
+      var darkroomEntranceTween = null;
+      var usedFallback          = false;  // smoke-dissolve breath-on-glass flag
+
+      // Card-shuffle
+      var prevWasFallback = false;
+
+      // String-stitch
+      var ssActiveChars   = [];
+      var ssActivePaths   = [];
+      var ssEntranceTween = null;
+      var ssSagProxy      = { amount: 0 };
+
+      // Paint-drip
+      var dripsLayer = document.createElement('div');
+      dripsLayer.id  = 'fl718-drips-layer';
+      dripsLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden;';
+      document.body.appendChild(dripsLayer);
+
+      // Navigation-map
+      var nmTimers = [];
+
+      // Etch-a-sketch
+      var SCREEN_COLOR = '#b4b8b0';
+      var INK_COLOR    = '#1c1c14';
+      var ATTR_COLOR   = '#505048';
+
+      var etchFrameEl   = null;
+      var etchScreenEl  = null;
+      var etchCanvas    = null;
+      var etchCtx       = null;
+      var etchKnobLeft  = null;
+      var etchKnobRight = null;
+      var drawingActive = false;
+      var drawTimer     = null;
+      var rightKnobDeg  = 0;
+      var leftKnobDeg   = 0;
+      var etchSW = 0, etchSH = 0;
+      var prevWasLong     = false;
+      var telegraphTimers = [];
+
+      // ── Deck / shuffle ────────────────────────────────────────────
+
+      function buildDeck(excludeIndex) {
+        var indices = fl718Quotes.map(function (_, i) { return i; });
+        for (var i = indices.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
+        }
+        if (excludeIndex !== undefined && indices[0] === excludeIndex && indices.length > 1) {
+          indices.push(indices.shift());
+        }
+        return indices;
+      }
+
+      function nextIndex() {
+        if (deck.length === 0) deck = buildDeck(currentIndex);
+        return deck.shift();
+      }
+
+      // ── Length class ──────────────────────────────────────────────
+
+      function getLengthClass(quote) {
+        if (quote.length === 'long') return 'long';
+        var words = quote.text.trim().split(/\s+/).length;
+        if (words > 80) return 'long';
+        if (words < 12) return 'short';
+        return 'standard';
+      }
+
+      function isLongQuote(q) {
+        return getLengthClass(q) === 'long';
+      }
+
+      // ── Render quote ──────────────────────────────────────────────
+
+      function renderQuote(quote) {
+        quoteEl.textContent = quote.text;
+        nameEl.textContent  = quote.attribution;
+
+        if (quote.source) {
+          sourceEl.textContent = quote.source;
+          sourceEl.classList.add('is-visible');
+        } else {
+          sourceEl.textContent = '';
+          sourceEl.classList.remove('is-visible');
+        }
+
+        block.className = quote.font;
+        var lengthCls = getLengthClass(quote);
+        block.classList.add('fl718-length-' + lengthCls);
+        block.classList.add('fl718-layout-' + (quote.layout || 'center'));
+
+        // Dense-lines: poems with many line breaks that would overflow vertically
+        var lineCount = (quote.text.match(/\n/g) || []).length + 1;
+        if ((lengthCls === 'long' && lineCount >= 12) ||
+            (lengthCls === 'standard' && lineCount >= 8)) {
+          block.classList.add('fl718-dense-lines');
+        }
+
+        body.className = 'fl718-quotes-page fl718-mood-' + quote.mood;
+
+        // Clear per-element opacity overrides from previous animations
+        // Must include nameEl/sourceEl — several exits (string-stitch, card-shuffle,
+        // etch/telegraph) set inline opacity:0 on these children directly
+        gsap.set([footerEl, ruleTopEl, ruleBotEl, nameEl, sourceEl], { clearProps: 'opacity,filter' });
+        gsap.set(block, { opacity: 0 });
+      }
+
+      // ── Simple fade fallback ──────────────────────────────────────
+
+      function simpleFade(direction, cb) {
+        if (direction === 'out') {
+          gsap.to(block, {
+            opacity: 0, y: -6, duration: 0.38, ease: 'power2.in',
+            onComplete: cb
+          });
+        } else {
+          gsap.fromTo(block,
+            { opacity: 0, y: 7 },
+            { opacity: 1, y: 0, duration: 0.54, ease: 'power2.out', onComplete: cb }
+          );
+        }
+      }
+
+      // ── Dispatch routers ──────────────────────────────────────────
+
+      function runExit(quote, cb) {
+        if (prefersReducedMotion || !quote) { simpleFade('out', cb); return; }
+        switch (quote.animation) {
+          case 'letterpress':      exitLetterpress(cb);    break;
+          case 'darkroom-develop': exitDarkroom(cb);       break;
+          case 'pond-ripple':      exitPondRipple(cb);     break;
+          case 'string-stitch':    exitStringStitch(cb);   break;
+          case 'card-shuffle':     exitCardShuffle(cb);    break;
+          case 'etch-a-sketch':    exitEtchSketch(cb);     break;
+          case 'navigation-map':   exitNavMap(cb);         break;
+          case 'marquee-bulb':     exitMarqueeBulb(cb);    break;
+          case 'smoke-dissolve':   exitSmoke(cb);          break;
+          case 'paint-drip':       exitPaintDrip(cb);      break;
+          case 'ikea-assembly':    exitIkea(cb);           break;
+          case 'data-dissolve':    exitDataDissolve(cb);   break;
+          default:                 simpleFade('out', cb);  break;
+        }
+      }
+
+      function runEntrance(quote, cb) {
+        if (prefersReducedMotion) { simpleFade('in', cb); return; }
+        var key = quote.entrance || quote.animation;
+        switch (key) {
+          case 'letterpress':      entranceLetterpress(quote, cb);  break;
+          case 'darkroom-develop': entranceDarkroom(quote, cb);     break;
+          case 'pond-ripple':      entrancePondRipple(quote, cb);   break;
+          case 'string-stitch':    entranceStringStitch(quote, cb); break;
+          case 'card-shuffle':     entranceCardShuffle(quote, cb);  break;
+          case 'etch-a-sketch':    entranceEtchSketch(quote, cb);   break;
+          case 'navigation-map':   entranceNavMap(quote, cb);       break;
+          case 'marquee-bulb':     entranceMarqueeBulb(quote, cb);  break;
+          case 'smoke-dissolve':   entranceSmoke(quote, cb);        break;
+          case 'paint-drip':       entrancePaintDrip(quote, cb);    break;
+          case 'ikea-assembly':    entranceIkea(quote, cb);         break;
+          case 'data-dissolve':    entranceSmoke(quote, cb);        break;
+          default:                 simpleFade('in', cb);            break;
+        }
+      }
+
+      // ── Transition ────────────────────────────────────────────────
+
+      function transition() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        if (!hasInteracted) {
+          hasInteracted = true;
+          hintEl.classList.remove('is-visible');
+          hintEl.classList.add('is-hidden');
+        }
+
+        var idx       = nextIndex();
+        var nextQuote = fl718Quotes[idx];
+
+        runExit(currentQuote, function () {
+          currentIndex = idx;
+          currentQuote = nextQuote;
+          renderQuote(nextQuote);
+          runEntrance(nextQuote, function () {
+            isTransitioning = false;
+          });
+        });
+      }
+
+      // ================================================================
+      // LETTERPRESS
+      // ================================================================
+
+      function lpSplit(el) {
+        var lines = el.textContent.split('\n');
+        var html = lines.map(function (line) {
+          return line.split(' ')
+            .filter(function (w) { return w.length > 0; })
+            .map(function (w) {
+              return '<span class="fl718-lp-word">' + w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+            }).join(' ');
+        }).join('<br>');
+        el.innerHTML = html;
+        return Array.from(el.querySelectorAll('.fl718-lp-word'));
+      }
+
+      function exitLetterpress(cb) {
+        var words = Array.from(quoteEl.querySelectorAll('.fl718-lp-word'));
+        if (!words.length) { simpleFade('out', cb); return; }
+        gsap.to(words, {
+          opacity: 0, y: -38, duration: 0.26, ease: 'power2.in',
+          stagger: { each: 0.03, from: 'end' },
+          onComplete: function () { gsap.set(block, { opacity: 0 }); cb(); }
+        });
+      }
+
+      function entranceLetterpress(quote, cb) {
+        gsap.set(block, { opacity: 1 });
+        var words = lpSplit(quoteEl);
+        words.forEach(function (word, i) {
+          var delay = i * 0.055;
+          gsap.timeline({ delay: delay })
+            .set(word, { opacity: 0, y: -52, scaleY: 1 })
+            .to(word, { opacity: 1, y: 0, duration: 0.38, ease: 'power3.out' })
+            .to(word, { scaleY: 0.82, duration: 0.06, ease: 'power2.in' })
+            .to(word, { scaleY: 1, duration: 0.24, ease: 'back.out(3)' });
+        });
+        var totalMs = ((words.length - 1) * 0.055 + 0.38 + 0.06 + 0.24 + 0.1) * 1000;
+        setTimeout(cb, totalMs);
+      }
+
+      // ================================================================
+      // IKEA ASSEMBLY
+      // ================================================================
+
+      function ikSplit(el) {
+        var lines = el.textContent.split('\n');
+        var html = lines.map(function (line) {
+          return line.split(' ')
+            .filter(function (w) { return w.length > 0; })
+            .map(function (w) {
+              return '<span class="fl718-ik-word">' + w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+            }).join(' ');
+        }).join('<br>');
+        el.innerHTML = html;
+        return Array.from(el.querySelectorAll('.fl718-ik-word'));
+      }
+
+      function exitIkea(cb) {
+        var words = Array.from(quoteEl.querySelectorAll('.fl718-ik-word'));
+        if (!words.length) { simpleFade('out', cb); return; }
+        gsap.to(words, {
+          x: function (i) { return i % 2 === 0 ? -window.innerWidth : window.innerWidth; },
+          rotateY: function (i) { return i % 2 === 0 ? -25 : 25; },
+          opacity: 0, duration: 0.38, ease: 'power3.in',
+          stagger: { each: 0.04, from: 'end' },
+          onComplete: function () { gsap.set(block, { opacity: 0 }); cb(); }
+        });
+      }
+
+      function entranceIkea(quote, cb) {
+        gsap.set(block, { opacity: 1 });
+        var words = ikSplit(quoteEl);
+        words.forEach(function (word, i) {
+          gsap.set(word, {
+            opacity: 0,
+            x: i % 2 === 0 ? -window.innerWidth : window.innerWidth,
+            rotateY: i % 2 === 0 ? 35 : -35
+          });
+        });
+        gsap.to(words, {
+          x: 0, rotateY: 0, opacity: 1, duration: 0.52, ease: 'back.out(1.2)', stagger: 0.07,
+          onComplete: function () {
+            gsap.to(words, {
+              scaleX: 1.03, duration: 0.04, ease: 'none', stagger: 0.07,
+              yoyo: true, repeat: 1, onComplete: cb
+            });
+          }
+        });
+      }
+
+      // ================================================================
+      // MARQUEE BULB
+      // ================================================================
+
+      function mbSplit(el) {
+        var text = el.textContent;
+        el.textContent = '';
+        var spans = [];
+        for (var i = 0; i < text.length; i++) {
+          var ch = text[i];
+          if (ch === '\n') { el.appendChild(document.createElement('br')); continue; }
+          var span = document.createElement('span');
+          span.className = 'fl718-mb-char' + (ch === ' ' ? ' space' : '');
+          span.textContent = ch;
+          el.appendChild(span);
+          spans.push(span);
+        }
+        return spans;
+      }
+
+      function mbTimestamps(count) {
+        var times = [], t = 0;
+        for (var i = 0; i < count; i++) {
+          times.push(t);
+          if (i < count - 1) {
+            var d;
+            if (Math.random() < 0.12) {
+              d = 0;
+            } else if (Math.random() < 0.20) {
+              d = 150 + Math.random() * 150;
+            } else {
+              d = 44 + Math.random() * 14 + (Math.random() - 0.5) * 18;
+              if (d < 8) d = 8;
+            }
+            t += Math.round(d);
+          }
+        }
+        return times;
+      }
+
+      function exitMarqueeBulb(cb) {
+        var chars = Array.from(quoteEl.querySelectorAll('.fl718-mb-char'));
+        if (!chars.length) { simpleFade('out', cb); return; }
+        var rightToLeft = chars.slice().reverse();
+        rightToLeft.forEach(function (char, i) {
+          setTimeout(function () {
+            char.classList.remove('lit', 'flickering');
+            char.classList.add('surging');
+            setTimeout(function () {
+              char.classList.remove('surging');
+              char.classList.add('dead');
+            }, 40);
+          }, i * 10);
+        });
+        setTimeout(function () {
+          gsap.set(block, { opacity: 0 });
+          cb();
+        }, rightToLeft.length * 10 + 150);
+      }
+
+      function entranceMarqueeBulb(quote, cb) {
+        gsap.set(block, { opacity: 1 });
+        var chars = mbSplit(quoteEl);
+        var timestamps = mbTimestamps(chars.length);
+        chars.forEach(function (char, i) {
+          setTimeout(function () {
+            if (char.classList.contains('space')) { char.style.opacity = '1'; return; }
+            char.classList.add('flickering');
+            char.addEventListener('animationend', function onEnd() {
+              char.removeEventListener('animationend', onEnd);
+              char.classList.remove('flickering');
+              char.classList.add('lit');
+            }, { once: true });
+          }, timestamps[i]);
+        });
+        setTimeout(cb, timestamps[timestamps.length - 1] + 200);
+      }
+
+      // ================================================================
+      // DATA DISSOLVE
+      // ================================================================
+
+      var GLYPH_POOL = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*?><[]{}';
+
+      function ddSplit(el) {
+        var text = el.textContent;
+        el.textContent = '';
+        var spans = [];
+        for (var i = 0; i < text.length; i++) {
+          var ch = text[i];
+          if (ch === '\n') { el.appendChild(document.createElement('br')); continue; }
+          var span = document.createElement('span');
+          span.className = 'fl718-dd-char' + (ch === ' ' ? ' space' : '');
+          span.textContent = ch;
+          el.appendChild(span);
+          spans.push(span);
+        }
+        return spans;
+      }
+
+      function dissolveChar(char, delay) {
+        setTimeout(function () {
+          if (char.classList.contains('space')) {
+            gsap.to(char, { opacity: 0, duration: 0.06 });
+            return;
+          }
+          var flickers = 0;
+          var interval = setInterval(function () {
+            char.textContent = GLYPH_POOL[Math.floor(Math.random() * GLYPH_POOL.length)];
+            flickers++;
+            if (flickers >= 3) {
+              clearInterval(interval);
+              gsap.to(char, { opacity: 0, duration: 0.08, ease: 'power1.in' });
+            }
+          }, 28 + Math.random() * 16);
+        }, delay);
+      }
+
+      function exitDataDissolve(cb) {
+        var chars = ddSplit(quoteEl);
+        var indices = chars.map(function (_, i) { return i; });
+        for (var i = indices.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = indices[i]; indices[i] = indices[j]; indices[j] = t;
+        }
+        var delay = 0;
+        indices.forEach(function (charIdx) {
+          dissolveChar(chars[charIdx], delay);
+          delay += 8 + Math.random() * 10;
+        });
+        setTimeout(function () { gsap.set(block, { opacity: 0 }); cb(); }, delay + 200);
+      }
+
+      // ================================================================
+      // SMOKE DISSOLVE  (also handles data-dissolve entrances)
+      // ================================================================
+
+      function smokeEntrance(cb) {
+        gsap.set(block, { opacity: 1, clearProps: 'rotation' });
+        block.style.filter = 'url(#fl718-smoke-filter) brightness(2.2) contrast(0.12) saturate(0)';
+        var proxy = { b: 2.2, c: 0.12, s: 0 };
+        gsap.to(proxy, {
+          b: 1, c: 1, s: 1, duration: 3, ease: 'power1.inOut',
+          onUpdate: function () {
+            block.style.filter = 'url(#fl718-smoke-filter) brightness(' + proxy.b.toFixed(4) + ') contrast(' + proxy.c.toFixed(4) + ') saturate(' + proxy.s.toFixed(4) + ')';
+          },
+          onComplete: function () { block.style.filter = ''; }
+        });
+        gsap.fromTo(dispMapSmoke, { attr: { scale: 60 } }, { attr: { scale: 0 }, duration: 3, ease: 'power2.out' });
+        gsap.fromTo(turbulenceSmoke, { attr: { baseFrequency: 0.08 } }, { attr: { baseFrequency: 0.025 }, duration: 3, ease: 'power1.in' });
+        gsap.fromTo(block, { y: -40 }, { y: 0, duration: 3, ease: 'power2.out' });
+        setTimeout(cb, 3200);
+      }
+
+      function smokeExit(cb) {
+        block.style.filter = 'url(#fl718-smoke-filter) brightness(1) contrast(1) saturate(1)';
+        gsap.to(dispMapSmoke, { attr: { scale: 55 }, duration: 0.9, ease: 'power3.in' });
+        gsap.to(turbulenceSmoke, { attr: { baseFrequency: 0.09 }, duration: 0.9, ease: 'power2.in' });
+        gsap.to(block, {
+          y: -55, opacity: 0, duration: 0.9, ease: 'power2.in',
+          onComplete: function () {
+            block.style.filter = '';
+            gsap.set(block, { clearProps: 'y' });
+            cb();
+          }
+        });
+      }
+
+      function breathEntrance(cb) {
+        gsap.set(block, { clearProps: 'y,rotation' });
+        gsap.fromTo(block,
+          { opacity: 0, filter: 'blur(22px) brightness(1.3) saturate(0.2) contrast(0.7)' },
+          {
+            opacity: 1, filter: 'blur(0px) brightness(1) saturate(1) contrast(1)',
+            duration: 1.8, ease: 'power2.out',
+            onComplete: function () { block.style.filter = ''; cb(); }
+          }
+        );
+      }
+
+      function breathExit(cb) {
+        gsap.to(block, {
+          opacity: 0, filter: 'blur(18px) brightness(1.2) saturate(0.15) contrast(0.6)',
+          duration: 0.65, ease: 'power2.in',
+          onComplete: function () { block.style.filter = ''; cb(); }
+        });
+      }
+
+      function exitSmoke(cb) {
+        if (usedFallback) { breathExit(cb); return; }
+        smokeExit(cb);
+      }
+
+      function entranceSmoke(quote, cb) {
+        usedFallback = isLongQuote(quote);
+        if (usedFallback) { breathEntrance(cb); return; }
+        smokeEntrance(cb);
+      }
+
+      // ================================================================
+      // DARKROOM DEVELOP
+      // ================================================================
+
+      function exitDarkroom(cb) {
+        if (darkroomEntranceTween) { darkroomEntranceTween.kill(); darkroomEntranceTween = null; }
+        gsap.set(dispMapDarkroom, { attr: { scale: 0 } });
+        var f = {
+          b: parseFloat((block.style.filter.match(/brightness\(([\d.]+)\)/) || [0, 1])[1]),
+          c: parseFloat((block.style.filter.match(/contrast\(([\d.]+)\)/)   || [0, 1])[1]),
+          s: parseFloat((block.style.filter.match(/saturate\(([\d.]+)\)/)   || [0, 1])[1]),
+          o: parseFloat(block.style.opacity) || 1
+        };
+        if (!f.b || f.b < 0.1) { f.b = 1; f.c = 1; f.s = 1; }
+        gsap.to(f, {
+          b: 4.5, c: 0.06, s: 0, o: 0, duration: 0.6, ease: 'power2.in',
+          onUpdate: function () {
+            block.style.filter = 'brightness(' + f.b.toFixed(4) + ') contrast(' + f.c.toFixed(4) + ') saturate(' + f.s.toFixed(4) + ')';
+            block.style.opacity = f.o.toFixed(4);
+          },
+          onComplete: function () { block.style.filter = 'none'; block.style.opacity = '0'; cb(); }
+        });
+      }
+
+      function entranceDarkroom(quote, cb) {
+        if (darkroomEntranceTween) { darkroomEntranceTween.kill(); darkroomEntranceTween = null; }
+        block.style.opacity = '0.55';
+        gsap.set(dispMapDarkroom, { attr: { scale: 40 } });
+        var f = { b: 2.2, c: 0.12, s: 0 };
+        function applyFilter() {
+          block.style.filter = 'url(#fl718-darkroom-filter) brightness(' + f.b.toFixed(4) + ') contrast(' + f.c.toFixed(4) + ') saturate(' + f.s.toFixed(4) + ')';
+        }
+        applyFilter();
+        darkroomEntranceTween = gsap.to(f, {
+          b: 1, c: 1, s: 1, duration: 3.5, ease: 'power1.inOut',
+          onUpdate: applyFilter,
+          onComplete: function () {
+            block.style.filter = 'none';
+            darkroomEntranceTween = null;
+            if (cb) cb();
+          }
+        });
+        gsap.to(dispMapDarkroom, { attr: { scale: 0 }, duration: 2.5, ease: 'power2.out' });
+        gsap.to(block, { opacity: 1, duration: 1, ease: 'power1.out' });
+      }
+
+      // ================================================================
+      // PAINT DRIP
+      // ================================================================
+
+      function pdSplit(el) {
+        var lines = el.textContent.split('\n');
+        var html = lines.map(function (line) {
+          return line.split(' ')
+            .filter(function (w) { return w.length > 0; })
+            .map(function (w) {
+              return '<span class="fl718-pd-word">' + w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+            }).join(' ');
+        }).join('<br>');
+        el.innerHTML = html;
+        return Array.from(el.querySelectorAll('.fl718-pd-word'));
+      }
+
+      function buildDripSchedule(count) {
+        var times = [], t = 0, i = 0;
+        while (i < count) {
+          var clusterSize = (Math.random() < 0.28 && i + 1 < count)
+            ? 2 + Math.floor(Math.random() * 2) : 1;
+          for (var c = 0; c < clusterSize && i < count; c++, i++) {
+            times.push(t + c * 72);
+          }
+          t += clusterSize * 72 + 200 + Math.random() * 280;
+        }
+        return times;
+      }
+
+      function launchDrip(wordRect, onArrive) {
+        var centerX = wordRect.left + wordRect.width * 0.5;
+        var targetY = wordRect.top  + wordRect.height * 0.62;
+        var drip = document.createElement('div');
+        drip.className  = 'fl718-pd-drip';
+        drip.style.left = (centerX - 6) + 'px';
+        drip.style.top  = '-60px';
+        dripsLayer.appendChild(drip);
+        var fallDist     = targetY + 60;
+        var fallDuration = Math.max(0.24, fallDist / 850);
+        gsap.to(drip, {
+          y: fallDist, duration: fallDuration, ease: 'power2.in',
+          onComplete: function () {
+            onArrive();
+            gsap.to(drip, {
+              scaleX: 4.5, scaleY: 0.06, opacity: 0, duration: 0.2, ease: 'power1.out',
+              onComplete: function () { if (drip.parentNode) drip.parentNode.removeChild(drip); }
+            });
+          }
+        });
+      }
+
+      function exitPaintDrip(cb) {
+        dripsLayer.innerHTML = '';
+        gsap.to(block, {
+          y: window.innerHeight * 0.58,
+          rotation: 1.5 + Math.random() * 1.5,
+          opacity: 0, duration: 0.65, ease: 'power2.in',
+          onComplete: function () { gsap.set(block, { clearProps: 'y,rotation' }); cb(); }
+        });
+      }
+
+      function entrancePaintDrip(quote, cb) {
+        dripsLayer.innerHTML = '';
+        gsap.set(block, { opacity: 1, clearProps: 'y,rotation,filter' });
+        var words = pdSplit(quoteEl);
+        if (!words.length) { simpleFade('in', cb); return; }
+        gsap.set(words, { opacity: 0 });
+        gsap.set([nameEl, sourceEl], { opacity: 0 });
+        var rects    = words.map(function (w) { return w.getBoundingClientRect(); });
+        var schedule = buildDripSchedule(words.length);
+        var lastArrivalMs = 0;
+        words.forEach(function (_, i) {
+          var targetY  = rects[i].top + rects[i].height * 0.62;
+          var fallDist = targetY + 60;
+          var fallMs   = Math.max(0.24, fallDist / 850) * 1000;
+          var arrival  = schedule[i] + fallMs;
+          if (arrival > lastArrivalMs) lastArrivalMs = arrival;
+        });
+        words.forEach(function (word, i) {
+          setTimeout(function () {
+            launchDrip(rects[i], function () { gsap.set(word, { opacity: 1 }); });
+          }, schedule[i]);
+        });
+        setTimeout(function () {
+          gsap.to([nameEl, sourceEl], { opacity: 1, duration: 0.45, ease: 'power1.out' });
+          setTimeout(cb, 320);
+        }, lastArrivalMs + 70);
+      }
+
+      // ================================================================
+      // STRING STITCH
+      // ================================================================
+
+      function ssSplitChars(el) {
+        var text = el.textContent;
+        el.textContent = '';
+        var allSpans = [];
+        var lines = text.split('\n');
+        lines.forEach(function (line, li) {
+          if (li > 0) el.appendChild(document.createElement('br'));
+          var words = line.split(' ');
+          words.forEach(function (word, wi) {
+            if (wi > 0) {
+              var sp = document.createElement('span');
+              sp.className = 'fl718-ss-char fl718-ss-space';
+              sp.textContent = ' ';
+              el.appendChild(sp);
+              allSpans.push(sp);
+            }
+            if (!word) return;
+            var wrap = document.createElement('span');
+            wrap.style.cssText = 'display: inline; white-space: nowrap;';
+            el.appendChild(wrap);
+            for (var i = 0; i < word.length; i++) {
+              var span = document.createElement('span');
+              span.className = 'fl718-ss-char';
+              span.textContent = word[i];
+              wrap.appendChild(span);
+              allSpans.push(span);
+            }
+          });
+        });
+        return allSpans;
+      }
+
+      function ssSplitWords(el) {
+        var text = el.textContent;
+        el.textContent = '';
+        var wordSpans = [];
+        var lines = text.split('\n');
+        lines.forEach(function (line, li) {
+          if (li > 0) el.appendChild(document.createElement('br'));
+          var words = line.split(' ').filter(function (w) { return w.length > 0; });
+          words.forEach(function (word, wi) {
+            if (wi > 0) {
+              var sp = document.createElement('span');
+              sp.className = 'fl718-ss-char fl718-ss-space';
+              sp.textContent = ' ';
+              el.appendChild(sp);
+            }
+            var span = document.createElement('span');
+            span.className = 'fl718-ss-char';
+            span.textContent = word;
+            el.appendChild(span);
+            wordSpans.push(span);
+          });
+        });
+        return wordSpans;
+      }
+
+      function ssGetCenter(span) {
+        var r = span.getBoundingClientRect();
+        return { x: r.left + r.width * 0.5, y: r.top + r.height * 0.5 };
+      }
+
+      function ssMakePath(x1, y1, x2, y2, sagAmount) {
+        var cx = (x1 + x2) * 0.5;
+        var cy = (y1 + y2) * 0.5 + (sagAmount || 0);
+        return 'M ' + x1.toFixed(1) + ' ' + y1.toFixed(1) +
+               ' Q ' + cx.toFixed(1) + ' ' + cy.toFixed(1) +
+               ' ' + x2.toFixed(1) + ' ' + y2.toFixed(1);
+      }
+
+      function ssTickerUpdate() {
+        for (var i = 0; i < ssActivePaths.length; i++) {
+          var c1 = ssGetCenter(ssActiveChars[i]);
+          var c2 = ssGetCenter(ssActiveChars[i + 1]);
+          ssActivePaths[i].setAttribute('d', ssMakePath(c1.x, c1.y, c2.x, c2.y, 0));
+        }
+      }
+
+      function ssBuildThreads(chars, textColor) {
+        threadSvg.innerHTML = '';
+        ssActivePaths = [];
+        for (var i = 0; i < chars.length - 1; i++) {
+          var c1   = ssGetCenter(chars[i]);
+          var c2   = ssGetCenter(chars[i + 1]);
+          var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('class', 'fl718-thread');
+          path.setAttribute('stroke', textColor);
+          path.setAttribute('stroke-width', '0.75');
+          path.setAttribute('opacity', '0.5');
+          path.setAttribute('d', ssMakePath(c1.x, c1.y, c2.x, c2.y, 0));
+          threadSvg.appendChild(path);
+          ssActivePaths.push(path);
+        }
+      }
+
+      function exitStringStitch(cb) {
+        gsap.ticker.remove(ssTickerUpdate);
+        if (ssEntranceTween) { ssEntranceTween.kill(); ssEntranceTween = null; }
+
+        gsap.to([nameEl, sourceEl], { opacity: 0, duration: 0.28, ease: 'power1.in' });
+        gsap.to([ruleTopEl, ruleBotEl], { opacity: 0, duration: 0.35, ease: 'power1.in' });
+
+        if (ssActiveChars.length === 0) {
+          gsap.to(block, { opacity: 0, duration: 0.5, ease: 'power1.in', onComplete: cb });
+          return;
+        }
+
+        ssSagProxy.amount = 0;
+        gsap.to(ssSagProxy, {
+          amount: 100, duration: 1.1, ease: 'power2.in',
+          onUpdate: function () {
+            for (var i = 0; i < ssActivePaths.length; i++) {
+              var c1 = ssGetCenter(ssActiveChars[i]);
+              var c2 = ssGetCenter(ssActiveChars[i + 1]);
+              ssActivePaths[i].setAttribute('d', ssMakePath(c1.x, c1.y, c2.x, c2.y, ssSagProxy.amount));
+            }
+          },
+          onComplete: function () { threadSvg.innerHTML = ''; ssActivePaths = []; }
+        });
+
+        ssActiveChars.forEach(function (ch) {
+          var dx = (Math.random() - 0.5) * 70;
+          var dy = 20 + Math.random() * 35;
+          gsap.to(ch, { x: '+=' + dx, y: '+=' + dy, opacity: 0, scale: 0.97, duration: 0.95, ease: 'power2.inOut' });
+        });
+
+        setTimeout(function () {
+          gsap.ticker.remove(ssTickerUpdate);
+          threadSvg.innerHTML = '';
+          ssActivePaths = [];
+          ssActiveChars = [];
+          gsap.set(block, { opacity: 0 });
+          cb();
+        }, 1200);
+      }
+
+      function entranceStringStitch(quote, cb) {
+        threadSvg.innerHTML = '';
+        ssActivePaths = [];
+        ssActiveChars = [];
+        gsap.set(block, { opacity: 1, clearProps: 'x,y,rotation,scale,filter' });
+        gsap.set([nameEl, sourceEl], { opacity: 0 });
+
+        var isLong = isLongQuote(quote);
+        var chars   = isLong ? ssSplitWords(quoteEl) : ssSplitChars(quoteEl);
+        var letters = isLong
+          ? chars
+          : chars.filter(function (s) { return !s.classList.contains('fl718-ss-space'); });
+
+        if (letters.length < 2) {
+          gsap.fromTo(block, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power1.out', onComplete: cb });
+          return;
+        }
+
+        ssActiveChars = letters;
+
+        var textColor = getComputedStyle(quoteEl).color || 'rgba(245, 240, 232, 1)';
+        var W = window.innerWidth, H = window.innerHeight;
+        var spread = isLong ? 0.5 : 0.65;
+
+        letters.forEach(function (ch, i) {
+          gsap.set(ch, {
+            x: (Math.random() - 0.5) * W * spread,
+            y: (Math.random() - 0.5) * H * spread,
+            opacity: 0
+          });
+        });
+
+        ssBuildThreads(letters, textColor);
+        gsap.ticker.add(ssTickerUpdate);
+
+        var stagger  = isLong ? 0.06 : 0.035;
+        var duration = isLong ? 0.75 : 0.85;
+
+        ssEntranceTween = gsap.to(letters, {
+          x: 0, y: 0, opacity: 1, duration: duration, ease: 'power2.inOut', stagger: stagger,
+          onComplete: function () {
+            gsap.ticker.remove(ssTickerUpdate);
+            ssTickerUpdate();
+            gsap.to(ssActivePaths, { attr: { opacity: isLong ? 0.10 : 0.12 }, duration: 0.7, ease: 'power1.out' });
+            gsap.to([nameEl, sourceEl], {
+              opacity: 1, duration: 0.5, ease: 'power1.out',
+              onComplete: function () { setTimeout(cb, 200); }
+            });
+          }
+        });
+      }
+
+      // ================================================================
+      // CARD SHUFFLE
+      // ================================================================
+
+      function csSplit(el) {
+        var lines = el.textContent.split('\n');
+        var html = lines.map(function (line) {
+          return line.split(' ')
+            .filter(function (w) { return w.length > 0; })
+            .map(function (w) {
+              return '<span class="fl718-cs-word">' + w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+            }).join(' ');
+        }).join('<br>');
+        el.innerHTML = html;
+        return Array.from(el.querySelectorAll('.fl718-cs-word'));
+      }
+
+      function csTimestamps(n) {
+        var out = [], t = 0;
+        for (var i = 0; i < n; i++) {
+          var pct   = n > 1 ? i / (n - 1) : 0;
+          var burst = i > Math.floor(n * 0.70) && Math.random() < 0.5;
+          var gap   = burst
+            ? 14 + Math.random() * 10
+            : Math.round(90 - pct * 62 + (Math.random() - 0.5) * 16);
+          if (gap < 12) gap = 12;
+          out.push({ t: t, burst: burst });
+          t += gap;
+        }
+        return out;
+      }
+
+      function csFallbackExit(cb) {
+        breathExit(cb);
+      }
+
+      function csFallbackEntrance(cb) {
+        breathEntrance(cb);
+      }
+
+      function exitCardShuffle(cb) {
+        if (prevWasFallback) { csFallbackExit(cb); return; }
+        gsap.to([nameEl, sourceEl], { opacity: 0, duration: 0.14 });
+        var words = Array.from(quoteEl.querySelectorAll('.fl718-cs-word'));
+        if (!words.length) { simpleFade('out', cb); return; }
+        var W = window.innerWidth, H = window.innerHeight;
+        words.forEach(function (word) {
+          var r = Math.random(), tx, ty, rot;
+          if      (r < 0.30) { tx =   W * 0.5 + Math.random() * W * 0.6;  ty = (Math.random() - 0.5) * H * 0.7; }
+          else if (r < 0.60) { tx = -(W * 0.5 + Math.random() * W * 0.6); ty = (Math.random() - 0.5) * H * 0.7; }
+          else if (r < 0.80) { tx = (Math.random() - 0.5) * W * 0.9;  ty = -(H * 0.5 + Math.random() * H * 0.5); }
+          else               { tx = (Math.random() - 0.5) * W * 0.9;  ty =   H * 0.5 + Math.random() * H * 0.5; }
+          rot = (Math.random() - 0.5) * 220;
+          gsap.to(word, { x: tx, y: ty, rotation: rot, opacity: 0, duration: 0.40, ease: 'power3.in' });
+        });
+        setTimeout(function () { cb(); }, 460);
+      }
+
+      function entranceCardShuffle(quote, cb) {
+        var useLong = isLongQuote(quote);
+        prevWasFallback = useLong;
+        if (useLong) { csFallbackEntrance(cb); return; }
+
+        var W = window.innerWidth;
+        gsap.set(block, { opacity: 1 });
+        gsap.set([nameEl, sourceEl], { opacity: 0 });
+
+        var words    = csSplit(quoteEl);
+        if (!words.length) { simpleFade('in', cb); return; }
+        var rects    = words.map(function (w) { return w.getBoundingClientRect(); });
+        var schedule = csTimestamps(words.length);
+        var lastEntry = schedule[schedule.length - 1];
+        var unlockMs  = lastEntry.t + Math.round((lastEntry.burst ? 0.38 : 0.50) * 1000) + 220;
+
+        words.forEach(function (word, i) {
+          var entry    = schedule[i];
+          var fromLeft = (i % 2 === 0);
+          var xFrom    = fromLeft ? -(rects[i].right + 40) : (W - rects[i].left + 40);
+          var rotFrom  = fromLeft ? 42 : -42;
+          var yFrom    = (Math.random() - 0.5) * 28;
+          var dur      = entry.burst ? 0.34 + Math.random() * 0.06 : 0.44 + Math.random() * 0.10;
+          var thwack   = entry.burst ? 1.07 : 1.04;
+          gsap.set(word, { x: xFrom, rotateY: rotFrom, y: yFrom, opacity: 0 });
+          (function (w, d, tw) {
+            setTimeout(function () {
+              gsap.to(w, {
+                x: 0, rotateY: 0, y: 0, opacity: 1, duration: d, ease: 'back.out(1.5)',
+                onComplete: function () {
+                  gsap.to(w, { scaleX: tw, duration: 0.04, ease: 'none', yoyo: true, repeat: 1 });
+                }
+              });
+            }, entry.t);
+          })(word, dur, thwack);
+        });
+
+        setTimeout(function () {
+          gsap.to([nameEl, sourceEl], { opacity: 1, duration: 0.4, ease: 'power1.out' });
+          setTimeout(function () { cb(); }, 360);
+        }, unlockMs);
+      }
+
+      // ================================================================
+      // POND RIPPLE
+      // ================================================================
+
+      function prSplit(el) {
+        var lines = el.textContent.split('\n');
+        var html = lines.map(function (line) {
+          return line.split(' ')
+            .filter(function (w) { return w.length > 0; })
+            .map(function (w) {
+              return '<span class="fl718-pr-word">' + w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+            }).join(' ');
+        }).join('<br>');
+        el.innerHTML = html;
+        return Array.from(el.querySelectorAll('.fl718-pr-word'));
+      }
+
+      function prPartition(arr, n) {
+        var groups = [], size = arr.length;
+        for (var g = 0; g < n; g++) {
+          var start = Math.floor(g * size / n);
+          var end   = Math.floor((g + 1) * size / n);
+          groups.push(arr.slice(start, end));
+        }
+        return groups;
+      }
+
+      function prRevealGroup(group) {
+        if (!group || !group.length) return;
+        group.forEach(function (word, i) {
+          gsap.to(word, { opacity: 1, duration: 0.40, delay: i * 0.05, ease: 'power1.out' });
+        });
+      }
+
+      function prCreateRippleSet(cx, cy, scale, isExit) {
+        var W = window.innerWidth, H = window.innerHeight;
+        var baseR    = Math.max(W, H) * 0.26;
+        var numRings = isExit ? 1 : 3;
+        var strokeColor = getComputedStyle(quoteEl).color;
+        for (var i = 0; i < numRings; i++) {
+          (function (ringIdx) {
+            var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', '0');
+            circle.setAttribute('fill', 'none'); circle.setAttribute('stroke', strokeColor);
+            circle.setAttribute('stroke-width', isExit ? '0.9' : '1.2');
+            circle.style.mixBlendMode = 'screen';
+            rippleSvg.appendChild(circle);
+            var maxR      = baseR * scale * (1.0 - ringIdx * 0.09);
+            var peakOp    = isExit ? 0.18 * scale : (0.44 - ringIdx * 0.10) * scale;
+            var duration  = isExit ? 1.6 : (2.3 + ringIdx * 0.28);
+            var ringDelay = ringIdx * 0.32;
+            gsap.fromTo(circle, { attr: { r: 0 }, opacity: peakOp },
+              { attr: { r: maxR }, opacity: 0, duration: duration, delay: ringDelay, ease: 'power1.out',
+                onComplete: function () { if (circle.parentNode) circle.parentNode.removeChild(circle); }
+              }
+            );
+          })(i);
+        }
+      }
+
+      function prCreateSplash(cx, cy) {
+        var strokeColor = getComputedStyle(quoteEl).color;
+        var num = 4 + Math.floor(Math.random() * 2);
+        for (var i = 0; i < num; i++) {
+          (function (pIdx) {
+            var angle = Math.PI * 1.1 + (Math.PI * 0.8) * (pIdx / Math.max(num - 1, 1));
+            angle += (Math.random() - 0.5) * 0.30;
+            var dist = 18 + Math.random() * 22;
+            var p = document.createElement('div');
+            p.className = 'fl718-pr-particle';
+            p.style.background = strokeColor;
+            document.body.appendChild(p);
+            gsap.set(p, { x: cx - 1.5, y: cy - 1.5, opacity: 0 });
+            gsap.to(p, {
+              x: cx - 1.5 + Math.cos(angle) * dist,
+              y: cy - 1.5 + Math.sin(angle) * dist,
+              opacity: 0.58, duration: 0.14, ease: 'power3.out',
+              onComplete: function () {
+                gsap.to(p, { opacity: 0, duration: 0.24, ease: 'power1.in',
+                  onComplete: function () { if (p.parentNode) p.parentNode.removeChild(p); }
+                });
+              }
+            });
+          })(i);
+        }
+      }
+
+      function prOnSkip(cx, cy, scale, group) {
+        var squash = 1 - scale * 0.46;
+        gsap.to(stoneEl, {
+          scaleY: squash, duration: 0.06, ease: 'power3.in',
+          onComplete: function () { gsap.to(stoneEl, { scaleY: 1, duration: 0.16, ease: 'power2.out' }); }
+        });
+        prCreateRippleSet(cx, cy, scale, false);
+        prCreateSplash(cx, cy);
+        prRevealGroup(group);
+      }
+
+      function exitPondRipple(cb) {
+        var r = block.getBoundingClientRect();
+        prCreateRippleSet(r.left + r.width * 0.5, r.top + r.height * 0.5, 0.88, true);
+        gsap.to(block, {
+          opacity: 0, scale: 0.97, duration: 0.88, ease: 'power1.inOut',
+          onComplete: function () { gsap.set(block, { clearProps: 'scale' }); cb(); }
+        });
+      }
+
+      function entrancePondRipple(quote, cb) {
+        // Clear any stale ripple rings from a previous interrupted entrance
+        while (rippleSvg.firstChild) rippleSvg.removeChild(rippleSvg.firstChild);
+
+        var W = window.innerWidth, H = window.innerHeight;
+        var waterY = H * 0.52;
+        var words  = prSplit(quoteEl);
+        var groups = prPartition(words, 3);
+
+        if (!words.length) { gsap.set(block, { opacity: 1 }); setTimeout(cb, 600); return; }
+
+        gsap.set([nameEl, sourceEl], { opacity: 0 });
+        gsap.set(words, { opacity: 0 });
+        gsap.set(block, { opacity: 1, clearProps: 'y,scale,filter,rotation' });
+
+        var X_DUR   = 2.20, SILENCE = 0.35;
+        var s1Rise  = 0.30, s1Fall  = 0.30;
+        var s2Rise  = 0.25, s2Fall  = 0.25;
+        var s3Rise  = 0.23, s3Fall  = 0.23;
+        var s1LandT = s1Rise + s1Fall;
+        var s2LandT = s1LandT + s2Rise + s2Fall;
+        var s3LandT = s2LandT + s3Rise + s3Fall;
+        var totalX  = W + 50;
+        var s1X = -20 + totalX * (s1LandT / X_DUR);
+        var s2X = -20 + totalX * (s2LandT / X_DUR);
+        var s3X = -20 + totalX * (s3LandT / X_DUR);
+
+        gsap.set(stoneEl, { x: -20, y: waterY, rotation: 0, scaleX: 1, scaleY: 1, opacity: 0 });
+        gsap.to(stoneEl, { opacity: 1, duration: 0.14, delay: SILENCE - 0.1 });
+        gsap.to(stoneEl, { x: W + 30, duration: X_DUR, delay: SILENCE, ease: 'none' });
+        gsap.to(stoneEl, { rotation: '+=600', duration: X_DUR, delay: SILENCE, ease: 'none' });
+
+        gsap.to(stoneEl, { y: H * 0.37, duration: s1Rise, delay: SILENCE, ease: 'power2.out' });
+        gsap.to(stoneEl, { y: waterY, duration: s1Fall, delay: SILENCE + s1Rise, ease: 'power2.in',
+          onComplete: function () { prOnSkip(s1X, waterY, 1.00, groups[0]); } });
+
+        gsap.to(stoneEl, { y: H * 0.44, duration: s2Rise, delay: SILENCE + s1LandT, ease: 'power2.out' });
+        gsap.to(stoneEl, { y: waterY, duration: s2Fall, delay: SILENCE + s1LandT + s2Rise, ease: 'power2.in',
+          onComplete: function () { prOnSkip(s2X, waterY, 0.78, groups[1]); } });
+
+        gsap.to(stoneEl, { y: H * 0.49, duration: s3Rise, delay: SILENCE + s2LandT, ease: 'power2.out' });
+        gsap.to(stoneEl, { y: waterY, duration: s3Fall, delay: SILENCE + s2LandT + s3Rise, ease: 'power2.in',
+          onComplete: function () { prOnSkip(s3X, waterY, 0.58, groups[2]); } });
+
+        gsap.to(stoneEl, { opacity: 0, duration: 0.40, delay: SILENCE + 1.92 });
+
+        var lastGroupSize = groups[2].length;
+        var unlockMs = (SILENCE + s3LandT) * 1000 + lastGroupSize * 0.05 * 1000 + 380;
+        setTimeout(function () {
+          gsap.to([nameEl, sourceEl], { opacity: 1, duration: 0.50, ease: 'power1.out' });
+          setTimeout(cb, 480);
+        }, unlockMs);
+      }
+
+      // ================================================================
+      // NAVIGATION MAP
+      // ================================================================
+
+      function nmSvgEl(tag, attrs) {
+        var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+        return el;
+      }
+
+      function nmTextColor() {
+        return getComputedStyle(body).getPropertyValue('--fl718-text').trim() || '#f5f0e8';
+      }
+
+      function nmToBearing(dx, dy) {
+        var deg     = Math.atan2(dx, -dy) * 180 / Math.PI;
+        var bearing = (((deg % 360) + 360) % 360);
+        return bearing.toFixed(0).padStart(3, '0') + '\u00b0';
+      }
+
+      function nmClearTimers() {
+        nmTimers.forEach(function (id) { clearTimeout(id); });
+        nmTimers = [];
+      }
+
+      function nmDelay(fn, ms) {
+        var id = setTimeout(fn, ms);
+        nmTimers.push(id);
+      }
+
+      function nmBuildCompassRose(parentSvg, cx, cy, r, color) {
+        var g = nmSvgEl('g', { id: 'fl718-nm-rose', opacity: '0' });
+        g.appendChild(nmSvgEl('circle', { cx: cx, cy: cy, r: r * 1.58, fill: 'none', stroke: color, 'stroke-width': '0.5', opacity: '0.22' }));
+        g.appendChild(nmSvgEl('circle', { cx: cx, cy: cy, r: r * 0.44, fill: 'none', stroke: color, 'stroke-width': '0.35', opacity: '0.18' }));
+        for (var ti = 0; ti < 36; ti++) {
+          var tAng   = (ti / 36) * Math.PI * 2 - Math.PI / 2;
+          var isCard = (ti % 9 === 0);
+          var rInner = r * (isCard ? 1.40 : 1.46);
+          g.appendChild(nmSvgEl('line', {
+            x1: cx + Math.cos(tAng) * rInner, y1: cy + Math.sin(tAng) * rInner,
+            x2: cx + Math.cos(tAng) * r * 1.60, y2: cy + Math.sin(tAng) * r * 1.60,
+            stroke: color, 'stroke-width': isCard ? '0.9' : '0.4', opacity: isCard ? '0.35' : '0.16'
+          }));
+        }
+        var pts = [];
+        for (var si = 0; si < 16; si++) {
+          var sAng = (si / 16) * Math.PI * 2 - Math.PI / 2;
+          var rPt  = si % 4 === 0 ? r : si % 2 === 0 ? r * 0.60 : r * 0.33;
+          pts.push((cx + Math.cos(sAng) * rPt) + ',' + (cy + Math.sin(sAng) * rPt));
+          pts.push(cx + ',' + cy);
+        }
+        g.appendChild(nmSvgEl('polygon', { points: pts.join(' '), fill: color, opacity: '0.90' }));
+        g.appendChild(nmSvgEl('circle', { cx: cx, cy: cy, r: '2.8', fill: color }));
+        [
+          { label: 'N', angle: -Math.PI / 2 }, { label: 'E', angle: 0 },
+          { label: 'S', angle:  Math.PI / 2 }, { label: 'W', angle:  Math.PI }
+        ].forEach(function (c) {
+          var t = nmSvgEl('text', {
+            x: cx + Math.cos(c.angle) * (r * 1.80), y: cy + Math.sin(c.angle) * (r * 1.80),
+            'text-anchor': 'middle', 'dominant-baseline': 'middle',
+            fill: color, opacity: '0.44',
+            style: 'font-family:DM Mono,monospace;font-size:8px;letter-spacing:0.10em;'
+          });
+          t.textContent = c.label;
+          g.appendChild(t);
+        });
+        parentSvg.appendChild(g);
+        return g;
+      }
+
+      function nmBuildVintageMapLayer(parentSvg, W, H) {
+        var g = nmSvgEl('g', { id: 'fl718-nm-vintage', opacity: '0' });
+        g.appendChild(nmSvgEl('image', {
+          href: '../concepts/phase 3/navigation-map.png',
+          x: '0', y: '0', width: W, height: H,
+          preserveAspectRatio: 'xMidYMid slice', opacity: '0.10'
+        }));
+        parentSvg.appendChild(g);
+        return g;
+      }
+
+      function exitNavMap(cb) {
+        var isLong = isLongQuote(currentQuote);
+        nmClearTimers();
+
+        if (isLong) {
+          gsap.to(block, {
+            filter: 'blur(7px)', opacity: 0, y: 5, duration: 1.0, ease: 'power1.in',
+            onComplete: function () {
+              gsap.set(block, { y: 0, filter: 'none' });
+              while (navMapSvg.firstChild) navMapSvg.removeChild(navMapSvg.firstChild);
+              cb();
+            }
+          });
+          return;
+        }
+
+        gsap.to(block, { opacity: 0, duration: 0.32, ease: 'power1.in' });
+
+        var bG = document.getElementById('fl718-nm-bearings');
+        if (bG) {
+          var paths = Array.from(bG.querySelectorAll('path')).reverse();
+          paths.forEach(function (p, i) {
+            var len = p.getTotalLength ? p.getTotalLength() : 600;
+            gsap.to(p, { attr: { 'stroke-dashoffset': -len }, opacity: 0, duration: 0.36, delay: i * 0.08, ease: 'power2.in' });
+          });
+          Array.from(bG.querySelectorAll('text')).forEach(function (t) {
+            gsap.to(t, { opacity: 0, duration: 0.20, ease: 'power1.in' });
+          });
+        }
+
+        var rG = document.getElementById('fl718-nm-rhumb');
+        if (rG) gsap.to(rG, { opacity: 0, duration: 0.28, delay: 0.15 });
+
+        var rose = document.getElementById('fl718-nm-rose');
+        if (rose) {
+          gsap.set(rose, { svgOrigin: Math.round(window.innerWidth * 0.21) + ' ' + Math.round(window.innerHeight * 0.50) });
+          gsap.to(rose, { scale: 0, rotation: 90, opacity: 0, duration: 0.42, ease: 'power2.in', delay: 0.20 });
+        }
+
+        var grd = document.getElementById('fl718-nm-grid');
+        if (grd) gsap.to(grd, { opacity: 0, duration: 0.26, delay: 0.30 });
+
+        setTimeout(function () {
+          while (navMapSvg.firstChild) navMapSvg.removeChild(navMapSvg.firstChild);
+          cb();
+        }, 760);
+      }
+
+      function entranceNavMap(quote, cb) {
+        var isLong = isLongQuote(quote);
+
+        // Convert to nm-line spans for measurement and progressive reveal
+        var lines = quote.text.split('\n');
+        quoteEl.innerHTML = lines.map(function (line) {
+          return '<span class="fl718-nm-line">' + line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+        }).join('');
+
+        // Set individual element opacities to 0 before entrance
+        gsap.set([footerEl, ruleTopEl, ruleBotEl], { opacity: 0 });
+
+        // Long quote: breath-on-glass fallback
+        if (isLong) {
+          var longLineSpans = Array.from(quoteEl.querySelectorAll('.fl718-nm-line'));
+          gsap.set(longLineSpans, { opacity: 1 });
+          gsap.set(block, { opacity: 0, filter: 'blur(8px)' });
+          gsap.to(block, {
+            filter: 'blur(0px)', opacity: 1, duration: 1.8, ease: 'power1.out',
+            onComplete: function () {
+              gsap.to([footerEl, ruleTopEl, ruleBotEl], { opacity: 1, duration: 0.5, stagger: 0.08 });
+              nmDelay(cb, 600);
+            }
+          });
+          return;
+        }
+
+        // Double rAF: ensures layout settles before measuring line positions
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            var W = window.innerWidth, H = window.innerHeight;
+            var color = nmTextColor();
+
+            var roseX = Math.round(W * 0.21);
+            var roseY = Math.round(H * 0.50);
+            var roseR = Math.min(Math.round(Math.min(W, H) * 0.056), 60);
+
+            // Measure line groups
+            gsap.set(block, { opacity: 1 });
+            var lineSpans  = Array.from(quoteEl.querySelectorAll('.fl718-nm-line'));
+            var MAX_GROUPS = 5;
+            var groups;
+            if (lineSpans.length <= MAX_GROUPS) {
+              groups = lineSpans.map(function (s) { return [s]; });
+            } else {
+              var gSize = Math.ceil(lineSpans.length / MAX_GROUPS);
+              groups = [];
+              for (var g = 0; g < lineSpans.length; g += gSize) {
+                groups.push(lineSpans.slice(g, g + gSize));
+              }
+            }
+
+            var groupData = groups.map(function (spanArr) {
+              var tops    = spanArr.map(function (s) { return s.getBoundingClientRect().top; });
+              var bottoms = spanArr.map(function (s) { return s.getBoundingClientRect().bottom; });
+              var lefts   = spanArr.map(function (s) { return s.getBoundingClientRect().left; });
+              var rights  = spanArr.map(function (s) { return s.getBoundingClientRect().right; });
+              return {
+                spans: spanArr,
+                cx: (Math.min.apply(null, lefts) + Math.max.apply(null, rights)) / 2,
+                cy: (Math.min.apply(null, tops)  + Math.max.apply(null, bottoms)) / 2
+              };
+            });
+
+            gsap.set(block, { opacity: 0 });
+
+            // Clear and rebuild SVG
+            while (navMapSvg.firstChild) navMapSvg.removeChild(navMapSvg.firstChild);
+
+            var vintageG = nmBuildVintageMapLayer(navMapSvg, W, H);
+
+            // Coordinate grid
+            var gridG = nmSvgEl('g', { id: 'fl718-nm-grid', opacity: '0' });
+            var mxX   = Math.round(W / 7), mxY = Math.round(H / 5);
+            var monoStyle = 'font-family:DM Mono,monospace;font-size:7.5px;';
+            for (var gx = 0; gx <= W + mxX; gx += mxX) {
+              gridG.appendChild(nmSvgEl('line', { x1: gx, y1: 0, x2: gx, y2: H, stroke: color, 'stroke-width': '0.50', opacity: '0.18' }));
+            }
+            for (var gy = 0; gy <= H + mxY; gy += mxY) {
+              gridG.appendChild(nmSvgEl('line', { x1: 0, y1: gy, x2: W, y2: gy, stroke: color, 'stroke-width': '0.50', opacity: '0.18' }));
+            }
+            for (var lgy = mxY; lgy < H; lgy += mxY) {
+              var lt = nmSvgEl('text', { x: 6, y: lgy, 'dominant-baseline': 'middle', fill: color, opacity: '0.32', style: monoStyle });
+              lt.textContent = String(Math.round(lgy)).padStart(4, '0');
+              gridG.appendChild(lt);
+            }
+            for (var lgx = mxX * 2; lgx < W; lgx += mxX * 2) {
+              var lt2 = nmSvgEl('text', { x: lgx, y: 11, 'text-anchor': 'middle', fill: color, opacity: '0.28', style: monoStyle });
+              lt2.textContent = String(Math.round(lgx)).padStart(4, '0');
+              gridG.appendChild(lt2);
+            }
+            navMapSvg.appendChild(gridG);
+
+            var roseG = nmBuildCompassRose(navMapSvg, roseX, roseY, roseR, color);
+
+            // Rhumb lines
+            var rhumbG = nmSvgEl('g', { id: 'fl718-nm-rhumb', opacity: '0' });
+            var rhumbAngles = [-Math.PI / 2, -Math.PI / 4, 0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4, Math.PI, -3 * Math.PI / 4];
+            rhumbAngles.forEach(function (ang) {
+              var rdx = Math.cos(ang), rdy = Math.sin(ang);
+              var rtX = rdx > 0 ? (W + 50 - roseX) / rdx : rdx < 0 ? (-50 - roseX) / rdx : 99999;
+              var rtY = rdy > 0 ? (H + 50 - roseY) / rdy : rdy < 0 ? (-50 - roseY) / rdy : 99999;
+              rhumbG.appendChild(nmSvgEl('line', {
+                x1: roseX, y1: roseY,
+                x2: roseX + rdx * Math.min(rtX, rtY), y2: roseY + rdy * Math.min(rtX, rtY),
+                stroke: color, 'stroke-width': '0.22', opacity: '0.09'
+              }));
+            });
+            navMapSvg.appendChild(rhumbG);
+
+            var bearingG = nmSvgEl('g', { id: 'fl718-nm-bearings' });
+            navMapSvg.appendChild(bearingG);
+            var rippleG = nmSvgEl('g', { id: 'fl718-nm-ripples' });
+            navMapSvg.appendChild(rippleG);
+
+            // Build bearing paths
+            var BEARING_DUR = 0.88, BEARING_GAP = 0.60, T_START = 1.55;
+
+            var bearingData = groupData.map(function (gd, gi) {
+              var dx   = gd.cx - roseX, dy = gd.cy - roseY;
+              var dist = Math.sqrt(dx * dx + dy * dy);
+              var ndx  = dx / dist, ndy = dy / dist;
+              var curveMag  = dist * 0.10;
+              var curveSign = (gi % 2 === 0) ? 1 : -1;
+              var cpX = roseX + dx * 0.50 + (-ndy * curveMag * curveSign);
+              var cpY = roseY + dy * 0.50 + ( ndx * curveMag * curveSign);
+              var tX   = ndx > 0 ? (W + 70 - roseX) / ndx : ndx < 0 ? (-70 - roseX) / ndx : 99999;
+              var tY   = ndy > 0 ? (H + 70 - roseY) / ndy : ndy < 0 ? (-70 - roseY) / ndy : 99999;
+              var tEdge = Math.min(tX, tY);
+              var endX  = roseX + ndx * tEdge, endY = roseY + ndy * tEdge;
+              var pathD = 'M ' + roseX + ' ' + roseY + ' Q ' + cpX + ' ' + cpY + ' ' + endX + ' ' + endY;
+              var path = nmSvgEl('path', { d: pathD, fill: 'none', stroke: color, 'stroke-width': '0.95', 'stroke-linecap': 'round', opacity: '0' });
+              bearingG.appendChild(path);
+              var pathLen = path.getTotalLength();
+              var tGroup = Math.abs(dx) >= Math.abs(dy)
+                ? Math.max(0.12, Math.min(0.84, (gd.cx - roseX) / (endX - roseX)))
+                : Math.max(0.12, Math.min(0.84, (gd.cy - roseY) / (endY - roseY)));
+              var labelPt = path.getPointAtLength(pathLen * 0.20);
+              path.setAttribute('stroke-dasharray',  pathLen + ' ' + pathLen);
+              path.setAttribute('stroke-dashoffset', pathLen);
+              return { path: path, pathLen: pathLen, tGroup: tGroup, center: gd, spans: gd.spans, bearing: nmToBearing(gd.cx - roseX, gd.cy - roseY), labelPt: labelPt, gi: gi };
+            });
+
+            // Animate layers
+            gsap.to(vintageG, { opacity: 1, duration: 0.80, ease: 'power1.out' });
+            gsap.to(gridG,    { opacity: 1, duration: 0.50, ease: 'power1.out' });
+            gsap.set(roseG, { svgOrigin: roseX + ' ' + roseY, rotation: -180, scale: 0.05 });
+            gsap.to(roseG, { opacity: 1, rotation: 0, scale: 1, duration: 0.88, ease: 'power3.out', delay: 0.28 });
+            gsap.to(rhumbG, { opacity: 1, duration: 0.55, ease: 'power1.out', delay: 0.95 });
+
+            var lastRevealTime = T_START;
+
+            bearingData.forEach(function (bd, bi) {
+              var lineStartTime = T_START + bi * BEARING_GAP;
+              var revealTime    = lineStartTime + bd.tGroup * BEARING_DUR;
+              if (revealTime > lastRevealTime) lastRevealTime = revealTime;
+
+              nmDelay(function () {
+                gsap.set(bd.path, { opacity: 0.58 });
+                bd.path.setAttribute('stroke-dashoffset', bd.pathLen);
+                gsap.to(bd.path, { attr: { 'stroke-dashoffset': 0 }, duration: BEARING_DUR, ease: 'none' });
+                var labelEl = nmSvgEl('text', {
+                  x: bd.labelPt.x + 6, y: bd.labelPt.y - 5,
+                  fill: color, opacity: '0',
+                  style: 'font-family:DM Mono,monospace;font-size:7px;letter-spacing:0.08em;'
+                });
+                labelEl.textContent = bd.bearing;
+                bearingG.appendChild(labelEl);
+                gsap.to(labelEl, { opacity: 0.35, duration: 0.45, ease: 'power1.out', delay: 0.30 });
+              }.bind(null, bd), lineStartTime * 1000);
+
+              nmDelay(function () {
+                if (bd.gi === 0) gsap.to(block, { opacity: 1, duration: 0.25, ease: 'power1.out' });
+                [
+                  { maxR: 18, sw: 1.0, op: 0.48, dur: 0.55, delay: 0 },
+                  { maxR: 32, sw: 0.6, op: 0.28, dur: 0.80, delay: 140 }
+                ].forEach(function (rc) {
+                  nmDelay(function () {
+                    var ripple = nmSvgEl('circle', { cx: bd.center.cx, cy: bd.center.cy, r: '0', fill: 'none', stroke: color, 'stroke-width': rc.sw, opacity: rc.op });
+                    rippleG.appendChild(ripple);
+                    gsap.to(ripple, { attr: { r: rc.maxR }, opacity: 0, duration: rc.dur, ease: 'power1.out' });
+                  }, rc.delay);
+                });
+                bd.spans.forEach(function (span, si) {
+                  gsap.fromTo(span, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: 0.48, ease: 'power1.out', delay: si * 0.06 });
+                });
+              }.bind(null, bd), revealTime * 1000);
+            });
+
+            var attrTime = lastRevealTime + 0.62;
+            nmDelay(function () {
+              gsap.to([ruleTopEl, ruleBotEl], { opacity: 1, duration: 0.55, ease: 'power1.out', stagger: 0.12 });
+              gsap.to(footerEl, { opacity: 1, duration: 0.55, ease: 'power1.out', delay: 0.14 });
+            }, attrTime * 1000);
+
+            nmDelay(cb, (attrTime + 0.80) * 1000);
+          });
+        });
+      }
+
+      // ================================================================
+      // ETCH-A-SKETCH
+      // ================================================================
+
+      function injectEtchFrame() {
+        var frame = document.createElement('div');
+        frame.id  = 'fl718-etch-frame';
+        frame.setAttribute('aria-hidden', 'true');
+        frame.innerHTML =
+          '<div id="fl718-etch-screen"><canvas id="fl718-etch-canvas"></canvas></div>' +
+          '<div class="fl718-etch-knob" id="fl718-knob-left" aria-hidden="true"></div>' +
+          '<div class="fl718-etch-knob" id="fl718-knob-right" aria-hidden="true"></div>' +
+          '<div id="fl718-etch-brand" aria-hidden="true">Etch A Sketch</div>';
+        document.getElementById('fl718-quotes-root').appendChild(frame);
+        etchFrameEl   = frame;
+        etchScreenEl  = frame.querySelector('#fl718-etch-screen');
+        etchCanvas    = frame.querySelector('#fl718-etch-canvas');
+        etchCtx       = etchCanvas.getContext('2d');
+        etchKnobLeft  = frame.querySelector('#fl718-knob-left');
+        etchKnobRight = frame.querySelector('#fl718-knob-right');
+      }
+
+      function removeEtchFrame() {
+        if (etchFrameEl && etchFrameEl.parentNode) etchFrameEl.parentNode.removeChild(etchFrameEl);
+        etchFrameEl = etchScreenEl = etchCanvas = etchCtx = etchKnobLeft = etchKnobRight = null;
+      }
+
+      function setupEtchCanvas() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        etchSW = etchScreenEl.clientWidth;
+        etchSH = etchScreenEl.clientHeight;
+        etchCanvas.width  = Math.round(etchSW * dpr);
+        etchCanvas.height = Math.round(etchSH * dpr);
+        etchCanvas.style.width  = etchSW + 'px';
+        etchCanvas.style.height = etchSH + 'px';
+        etchCtx.setTransform(1, 0, 0, 1, 0, 0);
+        etchCtx.scale(dpr, dpr);
+        etchCtx.fillStyle = SCREEN_COLOR;
+        etchCtx.fillRect(0, 0, etchSW, etchSH);
+      }
+
+      function clearEtchCanvas() {
+        etchCtx.fillStyle = SCREEN_COLOR;
+        etchCtx.fillRect(0, 0, etchSW, etchSH);
+      }
+
+      function computeEtchLines(text, maxW, fontSize) {
+        etchCtx.font = fontSize + 'px "DM Mono", monospace';
+        var lines = [];
+        text.split('\n').forEach(function (para) {
+          if (para.trim() === '') { lines.push(''); return; }
+          var words = para.split(' '), line = '';
+          words.forEach(function (word) {
+            var test = line ? line + ' ' + word : word;
+            if (etchCtx.measureText(test).width > maxW && line) { lines.push(line); line = word; }
+            else { line = test; }
+          });
+          if (line) lines.push(line);
+        });
+        return lines;
+      }
+
+      function computeEtchFontSize(text, padX, maxH) {
+        var maxW = etchSW - padX * 2;
+        for (var size = 18; size >= 10; size--) {
+          if (computeEtchLines(text, maxW, size).length * size * 1.95 <= maxH) return size;
+        }
+        return 10;
+      }
+
+      function buildCharSequence(q) {
+        var padX     = Math.round(etchSW * 0.085);
+        var padY     = Math.round(etchSH * 0.10);
+        var maxW     = etchSW - padX * 2;
+        var maxH     = etchSH * 0.68;
+        var fontSize = computeEtchFontSize(q.text, padX, maxH);
+        var lineH    = fontSize * 1.95;
+        var attrSize = Math.max(10, Math.round(fontSize * 0.70));
+        etchCtx.font = fontSize + 'px "DM Mono", monospace';
+        var quoteLines = computeEtchLines(q.text, maxW, fontSize);
+        var seq = [], y = padY + fontSize;
+        quoteLines.forEach(function (line) {
+          if (line === '') { y += Math.round(lineH * 0.5); return; }
+          etchCtx.font = fontSize + 'px "DM Mono", monospace';
+          var x = padX;
+          for (var i = 0; i < line.length; i++) {
+            seq.push({ ch: line[i], x: x, y: y, size: fontSize, isAttr: false });
+            x += etchCtx.measureText(line[i]).width;
+          }
+          y += lineH;
+        });
+        y += Math.round(lineH * 0.7);
+        var attrText = q.attribution + (q.source ? '   ' + q.source : '');
+        etchCtx.font = attrSize + 'px "DM Mono", monospace';
+        var ax = padX;
+        for (var i = 0; i < attrText.length; i++) {
+          seq.push({ ch: attrText[i], x: ax, y: y, size: attrSize, isAttr: true });
+          ax += etchCtx.measureText(attrText[i]).width;
+        }
+        return seq;
+      }
+
+      function etchCharDelay(ch, isAttr) {
+        if (isAttr) return 22 + Math.random() * 14;
+        if (ch === '.' || ch === '?' || ch === '!') return 180 + Math.random() * 60;
+        if (ch === ',' || ch === ';' || ch === ':') return 110 + Math.random() * 50;
+        if (ch === '\u2014' || ch === '—')          return 140 + Math.random() * 40;
+        if (ch === ' ')                              return 52  + Math.random() * 28;
+        if (Math.random() < 0.06)                   return 80  + Math.random() * 120;
+        return 36 + Math.random() * 20;
+      }
+
+      function updateEtchKnobs(entry, prevEntry) {
+        if (!prevEntry) return;
+        var dx = entry.x - prevEntry.x, dy = entry.y - prevEntry.y;
+        if (Math.abs(dx) > 0) {
+          rightKnobDeg += dx * 0.6;
+          gsap.to(etchKnobRight, { rotation: rightKnobDeg, duration: 0.10, ease: 'none', overwrite: true });
+        }
+        if (Math.abs(dy) > 2) {
+          leftKnobDeg += dy * 0.85;
+          gsap.to(etchKnobLeft, { rotation: leftKnobDeg, duration: 0.12, ease: 'none', overwrite: true });
+        }
+      }
+
+      function runEtchDrawLoop(seq, idx, cb) {
+        if (!drawingActive) return;
+        if (idx >= seq.length) { cb(); return; }
+        var entry = seq[idx], prevEntry = idx > 0 ? seq[idx - 1] : null;
+        etchCtx.font = entry.size + 'px "DM Mono", monospace';
+        etchCtx.fillStyle    = entry.isAttr ? ATTR_COLOR : INK_COLOR;
+        etchCtx.textAlign    = 'left';
+        etchCtx.textBaseline = 'alphabetic';
+        etchCtx.fillText(entry.ch, entry.x, entry.y);
+        updateEtchKnobs(entry, prevEntry);
+        var delay = etchCharDelay(entry.ch, entry.isAttr);
+        if (!entry.isAttr && idx + 1 < seq.length && seq[idx + 1].isAttr) delay += 700;
+        drawTimer = setTimeout(function () { runEtchDrawLoop(seq, idx + 1, cb); }, delay);
+      }
+
+      function etchDraw(quote, cb) {
+        rightKnobDeg = 0; leftKnobDeg = 0;
+        gsap.set([etchKnobLeft, etchKnobRight], { rotation: 0 });
+        gsap.set(etchFrameEl, { y: '-112vh', opacity: 1, pointerEvents: 'none' });
+        gsap.to(etchFrameEl, {
+          y: 0, duration: 0.60, ease: 'power3.out',
+          onComplete: function () {
+            gsap.to(etchFrameEl, {
+              y: -5, duration: 0.10, ease: 'power1.out', yoyo: true, repeat: 1,
+              onComplete: function () {
+                setupEtchCanvas();
+                drawingActive = true;
+                runEtchDrawLoop(buildCharSequence(quote), 0, function () {
+                  setTimeout(cb, 350);
+                });
+              }
+            });
+          }
+        });
+      }
+
+      function etchShakeExit(cb) {
+        drawingActive = false;
+        if (drawTimer) { clearTimeout(drawTimer); drawTimer = null; }
+        var tl = gsap.timeline(), pos = 0;
+        var shakeData = [
+          { amp: 4, dur: 0.062 }, { amp: 7, dur: 0.068 }, { amp: 10, dur: 0.072 },
+          { amp: 14, dur: 0.078 }, { amp: 18, dur: 0.082 }, { amp: 22, dur: 0.086 }
+        ];
+        shakeData.forEach(function (s, i) {
+          var dir = (i % 2 === 0) ? 1 : -1;
+          tl.to(etchFrameEl, { x: s.amp * dir, duration: s.dur, ease: 'sine.inOut' }, pos);
+          pos += s.dur;
+          tl.to(etchFrameEl, { x: 0, duration: s.dur * 0.65, ease: 'sine.out' }, pos);
+          pos += s.dur * 0.65;
+        });
+        tl.call(clearEtchCanvas, [], pos - 0.10);
+        tl.to([etchKnobLeft, etchKnobRight], { rotation: '+=48', duration: pos * 0.9, ease: 'power1.in' }, 0.08);
+        tl.to(etchFrameEl, { y: '-112vh', duration: 0.46, ease: 'power2.in' }, pos + 0.04);
+        tl.call(function () {
+          gsap.set(etchFrameEl, { x: 0, y: 0, opacity: 0 });
+          removeEtchFrame();
+          cb();
+        });
+      }
+
+      function telegraphEntrance(cb) {
+        gsap.set(block, { opacity: 1 });
+        gsap.set([nameEl, sourceEl], { opacity: 0 });
+        var raw = quoteEl.textContent, chars = raw.split('');
+        quoteEl.innerHTML = '';
+        chars.forEach(function (ch) {
+          var s = document.createElement('span');
+          s.textContent = ch;
+          gsap.set(s, { opacity: 0 });
+          quoteEl.appendChild(s);
+        });
+        var spans = Array.from(quoteEl.querySelectorAll('span')), t = 0;
+        spans.forEach(function (span, i) {
+          var ch = chars[i], d;
+          if (ch === '.' || ch === ',') { d = 90 + Math.random() * 80; }
+          else if (ch === ' ') { d = Math.random() < 0.14 ? 90 + Math.random() * 100 : 30 + Math.random() * 22; }
+          else { d = 28 + Math.random() * 38; if (Math.random() < 0.07) d += 100 + Math.random() * 140; }
+          t += d;
+          (function (s, ms) {
+            var timer = setTimeout(function () { gsap.set(s, { opacity: 1 }); }, ms);
+            telegraphTimers.push(timer);
+          })(span, t);
+        });
+        var endTimer = setTimeout(function () {
+          gsap.to([nameEl, sourceEl], { opacity: 1, duration: 0.4 });
+          setTimeout(cb, 400);
+        }, t + 180);
+        telegraphTimers.push(endTimer);
+      }
+
+      function telegraphExit(cb) {
+        telegraphTimers.forEach(clearTimeout);
+        telegraphTimers = [];
+        gsap.to([nameEl, sourceEl], { opacity: 0, duration: 0.14 });
+        gsap.to(block, {
+          opacity: 0, duration: 0.28, ease: 'power1.in',
+          onComplete: function () { gsap.set(block, { opacity: 0 }); cb(); }
+        });
+      }
+
+      function exitEtchSketch(cb) {
+        if (prevWasLong) { telegraphExit(cb); return; }
+        etchShakeExit(cb);
+      }
+
+      function entranceEtchSketch(quote, cb) {
+        gsap.set(block, { opacity: 0 });
+        var useLong = isLongQuote(quote);
+        prevWasLong = useLong;
+
+        if (prefersReducedMotion) {
+          if (useLong) { gsap.to(block, { opacity: 1, duration: 0.5, onComplete: cb }); }
+          else {
+            injectEtchFrame();
+            setupEtchCanvas();
+            buildCharSequence(quote).forEach(function (e) {
+              etchCtx.font = e.size + 'px "DM Mono", monospace';
+              etchCtx.fillStyle = e.isAttr ? ATTR_COLOR : INK_COLOR;
+              etchCtx.textAlign = 'left'; etchCtx.textBaseline = 'alphabetic';
+              etchCtx.fillText(e.ch, e.x, e.y);
+            });
+            gsap.set(etchFrameEl, { opacity: 1 });
+            setTimeout(cb, 300);
+          }
+          return;
+        }
+
+        if (useLong) {
+          telegraphEntrance(cb);
+        } else {
+          document.fonts.ready.then(function () {
+            injectEtchFrame();
+            etchDraw(quote, cb);
+          });
+        }
+      }
+
+      // ================================================================
+      // INPUT HANDLERS
+      // ================================================================
+
+      var wheelCooldown = false;
+      window.addEventListener('wheel', function () {
+        if (wheelCooldown) return;
+        wheelCooldown = true;
+        setTimeout(function () { wheelCooldown = false; }, 150);
+        transition();
+      }, { passive: true });
+
+      var touchStartY = 0;
+      window.addEventListener('touchstart', function (e) {
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+      window.addEventListener('touchend', function (e) {
+        if (Math.abs(touchStartY - e.changedTouches[0].clientY) >= 50) transition();
+      }, { passive: true });
+
+      window.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === ' ') {
+          e.preventDefault();
+          transition();
+        }
+      });
+
+      // ================================================================
+      // INIT
+      // ================================================================
+
+      function init() {
+        deck         = buildDeck();
+        currentIndex = deck.shift();
+        currentQuote = fl718Quotes[currentIndex];
+        renderQuote(currentQuote);
+
+        // First quote arrives with its own entrance animation
+        isTransitioning = true;
+        runEntrance(currentQuote, function () {
+          isTransitioning = false;
+          hintEl.classList.add('is-visible');
+        });
+      }
+
+      init();
+
+    })();
+  </script>
+
+</body>
+</html>
