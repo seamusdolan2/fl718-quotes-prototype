@@ -182,7 +182,7 @@ var fl718Quotes = [
   },
   {
     id: 14,
-    text: "You are round, but real, brother.",
+    text: "You are round, but real brother.",
     attribution: "— Séamus Dolan",
     source: null,
     mood: "wild-electric",
@@ -344,7 +344,7 @@ var fl718Quotes = [
   // ── BRAND NEW ─────────────────────────────────────────────────────────────
   {
     id: 27,
-    text: "Well if we take all these things\nand we bury them fast\nAnd we'll pray that they turn into seeds,\nto roots and then grass\nIt'd be all right, it's all right,\nit'd be easier that way.\nOr if the sky opened up and started pouring rain\nLike he knew it was time\nto start things over again\nIt'd be all right, it's all right,\nit'd be easier that way.",
+    text: "Well if we take all these things\nand we bury them fast\nAnd we'll pray that they turn into seeds,\nto roots and then grass\nIt'd be all right, it's all right,\nit'd be easier that way.\n\nOr if the sky opened up and started pouring rain\nLike he knew it was time\nto start things over again\nIt'd be all right, it's all right,\nit'd be easier that way.",
     attribution: "— Brand New",
     source: "Daisy",
     mood: "dark-raw",
@@ -528,7 +528,7 @@ var fl718Quotes = [
   // ── CANIBUS ───────────────────────────────────────────────────────────────
   {
     id: 42,
-    text: "My circularized third eye sees all,\nAtlantis was surrounded by four sea walls,\nI read one fourth of the Library of Alexandria,\nBefore it was burned to the floor,\nI wish I could have learned more,\nAbout the shapes of the Sacred Geometry they used to draw,",
+    text: "My circularized third eye sees all,\nAtlantis was surrounded by four sea walls,\nI read one fourth of the Library of Alexandria,\nBefore it was burned to the floor,\nI wish I could have learned more,\nAbout the shapes of the Sacred Geometry they used to draw",
     attribution: "— Canibus",
     source: "Master Thesis",
     mood: "contemplative-ancient",
@@ -838,7 +838,7 @@ var fl718Quotes = [
     id: 69,
     text: "I can bang my head against any wall you build.",
     attribution: "— Aesop Rock",
-    source: null,
+    source: "39 Thieves",
     mood: "defiant-political",
     length: "short",
     animation: "etch-a-sketch",
@@ -858,7 +858,7 @@ var fl718Quotes = [
   },
   {
     id: 71,
-    text: "There's smoke in my iris\nBut I painted a sunny day on the insides of my eyelids\nSo I'm ready now\nI'm ready for life in this city\nAnd my wings have grown almost enough to lift me",
+    text: "There's smoke in my iris\nBut I painted a sunny day on the insides of my eyelids\nSo I'm ready now (What you ready for?)\nI'm ready for life in this city\nAnd my wings have grown almost enough to lift me",
     attribution: "— Aesop Rock",
     source: "Battery",
     mood: "wild-electric",
@@ -1147,7 +1147,7 @@ var fl718Quotes = [
   // ── THE CHIEFTAINS ────────────────────────────────────────────────────────
   {
     id: 94,
-    text: "There armed lines of marching men\nIn squadrons passed me by\nNo pipe did hum\nNo battle drum did sound its loud tattoo\nBut the Angelus Bells o'er the Liffey swells\nRang out in the foggy dew",
+    text: "As down the glen one Easter morn\nTo a city fair rode I\nThere armed lines of marching men\nIn squadrons passed me by\n\nNo pipe did hum\nNo battle drum did sound its loud tattoo\nBut the Angelus Bells o'er the Liffey swells\nRang out in the foggy dew",
     attribution: "— The Chieftains",
     source: "Foggy Dew (traditional)",
     mood: "contemplative-ancient",
