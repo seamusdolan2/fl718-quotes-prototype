@@ -812,6 +812,13 @@
         font-size: clamp(0.42rem, 0.6vw, 0.52rem);
         bottom: 12px;
         bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
+      /* Place scroll hint on its own line above the watermark text */
+      #fl718-scroll-hint-wm {
+        order: -1;
+        width: 100%;
       }
       .fl718-copyright {
         bottom: 12px;
