@@ -37,9 +37,9 @@
        All 12 animations + Phase 1 engine
     ================================================================ */
 
-    body.fl718-quotes-page *,
-    body.fl718-quotes-page *::before,
-    body.fl718-quotes-page *::after {
+    :where(body.fl718-quotes-page) *,
+    :where(body.fl718-quotes-page) *::before,
+    :where(body.fl718-quotes-page) *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -931,11 +931,11 @@
     <div id="fl718-quote-block">
       <span class="fl718-rule fl718-rule--top" role="presentation"></span>
       <blockquote class="fl718-quote-text"></blockquote>
+      <span class="fl718-rule fl718-rule--bottom" role="presentation"></span>
       <footer class="fl718-attribution">
         <cite class="fl718-attribution-name"></cite>
         <span class="fl718-attribution-source"></span>
       </footer>
-      <span class="fl718-rule fl718-rule--bottom" role="presentation"></span>
     </div>
   </div>
 
@@ -3139,7 +3139,12 @@
 
         // Opening plays once per session (not on every page visit)
         var openingDone = false;
-        try { openingDone = !!sessionStorage.getItem('fl718-cold-open-done'); } catch(e) {}
+        // Allow ?reset in URL to force the opening animation to replay
+        if (window.location.search.indexOf('reset') !== -1) {
+          try { sessionStorage.removeItem('fl718-cold-open-done'); } catch(e) {}
+        } else {
+          try { openingDone = !!sessionStorage.getItem('fl718-cold-open-done'); } catch(e) {}
+        }
 
         isTransitioning = true;
         var startQuote = function () {
